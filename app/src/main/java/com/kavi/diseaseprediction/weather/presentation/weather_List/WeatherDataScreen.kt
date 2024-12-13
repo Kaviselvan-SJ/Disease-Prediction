@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,10 +38,16 @@ import androidx.compose.ui.res.painterResource
 @Composable
 fun WeatherDataScreen(
     state: WeatherDataState,
+    currentCity: String,
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit = {}
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
+    val updatedCurrentCity = if(currentCity == "Unknown"){
+        "Can't fetch location enter manually.."
+    }else{
+        currentCity
+    }
 
     Column(
         modifier = modifier
@@ -48,6 +55,15 @@ fun WeatherDataScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         // Search Bar with Icon
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Text(
+                text = "Current Location : $updatedCurrentCity"
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,7 +83,10 @@ fun WeatherDataScreen(
                 )
             )
             IconButton(
-                onClick = { onSearch(searchText.text) },
+                onClick = {
+                    // If the search field is empty, fetch the current location
+                    onSearch(searchText.text.ifEmpty { "" })
+                },
                 modifier = Modifier.wrapContentWidth()
             ) {
                 Icon(
@@ -92,15 +111,31 @@ fun WeatherDataScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = if (searchText.text.isNotEmpty()) {
-                            "No results found for '${searchText.text}'"
-                        } else {
-                            "Fetching weather data for your location..."
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = if (searchText.text.isNotEmpty()) {
+                                "No results found for '${searchText.text}'"
+                            } else {
+                                "Fetching weather data for your location..."
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Add a button to trigger fetching weather data for current location
+                        if (searchText.text.isEmpty()) {
+                            Button(
+                                onClick = { onSearch("") },
+                                modifier = Modifier
+                                    .padding(top = 16.dp)
+                                    .align(Alignment.CenterHorizontally) // Explicitly align the button
+                            ) {
+                                Text(text = "Use Current Location")
+                            }
+                        }
+                    }
                 }
             }
             else -> {
@@ -127,6 +162,7 @@ fun WeatherDataScreen(
 private fun WeatherDataScreenPreview() {
     DiseasePredictionTheme {
         WeatherDataScreen(
+            currentCity = "Unknown",
             state = WeatherDataState(
                 weatherData = List(10) { previewData } // Generates a list of 10 `WeatherDataUi` items
             ),

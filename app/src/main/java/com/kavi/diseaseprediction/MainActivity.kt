@@ -1,8 +1,11 @@
 package com.kavi.diseaseprediction
 
-import android.os.Bundle
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.Intent
+import android.location.LocationManager
+import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,21 +15,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kavi.diseaseprediction.core.presentation.util.ObserveAsEvents
@@ -55,7 +50,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DiseasePredictionTheme {
-                Scaffold(modifier = Modifier.fillMaxSize(),
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
                             title = { Text("Plant Doctor") },
@@ -71,12 +67,13 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { innerPadding ->
+                    CheckLocationPermission()
                     val viewModel = koinViewModel<WeatherListViewModel>()
                     val state by viewModel.state.collectAsStateWithLifecycle()
 
                     val context = LocalContext.current
                     ObserveAsEvents(events = viewModel.events) { event ->
-                        when(event) {
+                        when (event) {
                             is WeatherListEvent.Error -> {
                                 Toast.makeText(
                                     context,
@@ -86,38 +83,69 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                    CheckLocationPermission()
+
+                    val currentCity by viewModel.currentCity.collectAsStateWithLifecycle()
+
                     WeatherDataScreen(
                         state = state,
+                        currentCity = currentCity,
                         onSearch = { query ->
                             viewModel.onAction(WeatherListAction.OnSearch(query))
                         },
                         modifier = Modifier.padding(innerPadding)
                     )
-
-
                 }
             }
         }
     }
 
-
     @Composable
     private fun CheckLocationPermission() {
         val context = LocalContext.current
-        if (ContextCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        val locationManager = context.getSystemService(LocationManager::class.java)
+        val isLocationEnabled =
+            locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true ||
+                    locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
+
+        // State to control dialog visibility
+        val showPermissionDialog = remember { mutableStateOf(false) }
+        val showLocationDialog = remember { mutableStateOf(false) }
+
+        // Ensure the checks are done only once
+        val checkedOnce = remember { mutableStateOf(false) }
+
+        if (!checkedOnce.value) {
+            checkedOnce.value = true
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                showPermissionDialog.value = true // Show permission dialog only once
+            }
+            if (!isLocationEnabled) {
+                showLocationDialog.value = true // Show location services dialog only once
+            }
+        }
+
+        // Location Permission Dialog
+        if (showPermissionDialog.value) {
             AlertDialog(
-                onDismissRequest = { },
+                onDismissRequest = {
+                    showPermissionDialog.value = false // Hide dialog on dismiss
+                },
                 confirmButton = {
-                    TextButton(onClick = { requestLocationPermission.launch(Manifest.permission.ACCESS_FINE_LOCATION) }) {
+                    TextButton(onClick = {
+                        requestLocationPermission.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        showPermissionDialog.value = false // Hide dialog after requesting permission
+                    }) {
                         Text("Grant Permission")
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { }) {
+                    TextButton(onClick = {
+                        showPermissionDialog.value = false // Hide dialog on cancel
+                    }) {
                         Text("Cancel")
                     }
                 },
@@ -125,7 +153,32 @@ class MainActivity : ComponentActivity() {
                 text = { Text("This app requires location permission to work.") }
             )
         }
+
+        // Location Services Dialog
+        if (showLocationDialog.value) {
+            AlertDialog(
+                onDismissRequest = {
+                    showLocationDialog.value = false // Hide dialog on dismiss
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        context.startActivity(intent)
+                        showLocationDialog.value = false // Hide dialog after navigating
+                    }) {
+                        Text("Enable Location")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showLocationDialog.value = false // Hide dialog on cancel
+                    }) {
+                        Text("Cancel")
+                    }
+                },
+                title = { Text("Enable Location Services") },
+                text = { Text("This app requires location services to be enabled.") }
+            )
+        }
     }
-
 }
-
