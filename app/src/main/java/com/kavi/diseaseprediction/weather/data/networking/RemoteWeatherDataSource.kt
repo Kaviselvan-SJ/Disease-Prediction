@@ -1,7 +1,7 @@
 package com.kavi.diseaseprediction.weather.data.networking
 
 import com.kavi.diseaseprediction.BuildConfig
-import com.kavi.diseaseprediction.core.data.networking.constructUrl
+import com.kavi.diseaseprediction.core.data.networking.constructUrlForWeather
 import com.kavi.diseaseprediction.core.data.networking.safeCall
 import com.kavi.diseaseprediction.core.domain.util.NetworkError
 import com.kavi.diseaseprediction.core.domain.util.Result
@@ -22,7 +22,7 @@ class RemoteWeatherDataSource(
     override suspend fun getDailyWeather(location: String,date: String): Result<List<WeatherData>, NetworkError> {
         return safeCall<WeatherResponseDto> {
             httpClient.get {
-                url(constructUrl("/history.json"))
+                url(constructUrlForWeather("/history.json"))
                 parameter("key", BuildConfig.API_KEY) // API key from BuildConfig
                 parameter("q", location) // Location parameter
                 parameter("dt", date) // Date parameter (format: YYYY-MM-DD)
