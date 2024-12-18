@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
                         onSearch = { query ->
                             viewModel.onAction(WeatherListAction.OnSearch(query))
                         },
+                        onPredictDisease = { viewModel.onPredictDisease() },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

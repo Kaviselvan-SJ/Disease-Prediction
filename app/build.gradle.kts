@@ -23,6 +23,7 @@ android {
         debug {
             buildConfigField("String", "BASE_URL", "\"http://api.weatherapi.com/v1/\"")
             buildConfigField("String", "API_KEY", "\"cf3fbb2be54b4c88864112059241112\"")
+            buildConfigField("String", "BASE_URL2", "\"http://192.168.165.240:6657/\"")
         }
         release {
             isMinifyEnabled = false
@@ -32,6 +33,7 @@ android {
             )
             buildConfigField("String", "BASE_URL", "\"http://api.weatherapi.com/v1/\"")
             buildConfigField("String", "API_KEY", "\"cf3fbb2be54b4c88864112059241112\"")
+            buildConfigField("String", "BASE_URL2", "\"http://192.168.165.240:6657/\"")
         }
     }
     compileOptions {
@@ -53,6 +55,7 @@ dependencies {
     implementation(libs.google.play.services.location)
     implementation(libs.google.play.services.maps)
     implementation(libs.coroutines.android)
+
     implementation(libs.coroutines.play.services)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

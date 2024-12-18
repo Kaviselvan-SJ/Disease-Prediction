@@ -7,6 +7,8 @@ import java.util.Locale
 data class WeatherDataUi (
     val location: String,
     val date:String,
+    val maxTemp: DisplayableNumber,
+    val minTemp: DisplayableNumber,
     val avgTemp: DisplayableNumber,
     val humidity: DisplayableNumber,
     val windSpeed: DisplayableNumber,
@@ -22,12 +24,29 @@ fun WeatherData.toWeatherDataUi(): WeatherDataUi {
     return WeatherDataUi(
         location = location,
         avgTemp = avgTemp.toDisplayableNumber(),
+        maxTemp = maxTemp.toDisplayableNumber(),
+        minTemp = minTemp.toDisplayableNumber(),
         humidity = humidity.toDisplayableNumber(),
         windSpeed = windSpeed.toDisplayableNumber(),
         rainfall = rainfall.toDisplayableNumber(),
         date = date
     )
 }
+
+fun WeatherDataUi.toWeatherData(): WeatherData {
+    return WeatherData(
+        location = location,
+        avgTemp = avgTemp.value,
+        maxTemp = maxTemp.value,
+        minTemp = minTemp.value,
+        humidity = humidity.value.toInt(),
+        windSpeed = windSpeed.value,
+        rainfall = rainfall.value,
+        date = date
+    )
+}
+
+
 
 fun Double.toDisplayableNumber(): DisplayableNumber {
     val formatter = NumberFormat.getNumberInstance(Locale.getDefault()).apply {

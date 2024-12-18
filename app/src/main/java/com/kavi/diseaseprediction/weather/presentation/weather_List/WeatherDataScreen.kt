@@ -1,5 +1,6 @@
 package com.kavi.diseaseprediction.weather.presentation.weather_List
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,8 +32,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,12 +41,13 @@ fun WeatherDataScreen(
     state: WeatherDataState,
     currentCity: String,
     modifier: Modifier = Modifier,
-    onSearch: (String) -> Unit = {}
+    onSearch: (String) -> Unit = {},
+    onPredictDisease: () -> Unit = {} // Callback for prediction
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
-    val updatedCurrentCity = if(currentCity == "Unknown"){
+    val updatedCurrentCity = if (currentCity == "Unknown") {
         "Can't fetch location enter manually.."
-    }else{
+    } else {
         currentCity
     }
 
@@ -54,16 +56,18 @@ fun WeatherDataScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Search Bar with Icon
-        Row (
+        // Search bar and weather data UI remain the same
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
             Text(
-                text = "Current Location : $updatedCurrentCity"
+                text = "Current Location: $updatedCurrentCity",
+                style = MaterialTheme.typography.bodyMedium
             )
         }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,17 +80,10 @@ fun WeatherDataScreen(
                 label = { Text("Search by location") },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                )
+                    .padding(end = 8.dp)
             )
             IconButton(
-                onClick = {
-                    // If the search field is empty, fetch the current location
-                    onSearch(searchText.text.ifEmpty { "" })
-                },
+                onClick = { onSearch(searchText.text.ifEmpty { "" }) },
                 modifier = Modifier.wrapContentWidth()
             ) {
                 Icon(
@@ -96,7 +93,6 @@ fun WeatherDataScreen(
             }
         }
 
-        // Loading or Weather Data
         when {
             state.isLoading -> {
                 Box(
@@ -106,6 +102,7 @@ fun WeatherDataScreen(
                     CircularProgressIndicator()
                 }
             }
+
             state.weatherData.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -118,7 +115,7 @@ fun WeatherDataScreen(
                             text = if (searchText.text.isNotEmpty()) {
                                 "No results found for '${searchText.text}'"
                             } else {
-                                "Fetching weather data for your location..."
+                                "No data available..."
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
@@ -138,6 +135,7 @@ fun WeatherDataScreen(
                     }
                 }
             }
+
             else -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -149,6 +147,23 @@ fun WeatherDataScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                         HorizontalDivider()
+                    }
+
+                    // Add disease prediction UI at the end of the list
+                    state.diseasePrediction?.let { prediction ->
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Disease Prediction: ${prediction.diseaseName}",
+                                    fontSize = 20.sp
+                                )
+                            }
+                        }
                     }
                 }
             }
