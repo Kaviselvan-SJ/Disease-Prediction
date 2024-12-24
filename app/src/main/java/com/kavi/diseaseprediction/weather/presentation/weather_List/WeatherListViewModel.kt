@@ -97,10 +97,10 @@ class WeatherListViewModel(
                 val weatherUiData = weatherDataList.map { it.toWeatherDataUi() }
 
                 // If weather data is fetched successfully, call disease prediction API
-                var diseasePredictionUi: DiseasePredictionUi? = null
-                if (weatherDataList.isNotEmpty()) {
-                    val latestWeather = weatherDataList.first() // Use the latest weather for prediction
-                    diseasePredictionUi = classifyDisease(latestWeather)
+                val diseasePredictionUi = if (weatherDataList.isNotEmpty()) {
+                    classifyDisease(weatherDataList)
+                } else {
+                    null
                 }
 
                 _state.update {
@@ -119,15 +119,24 @@ class WeatherListViewModel(
     }
 
     // Predicts disease based on the latest weather data
-    private suspend fun classifyDisease(weatherData: WeatherData): DiseasePredictionUi? {
+    // Predicts disease based on 7 days of weather data
+    private suspend fun classifyDisease(weatherDataList: List<WeatherData>): DiseasePredictionUi? {
         return try {
             var predictionUi: DiseasePredictionUi? = null
+
+            // Aggregate the weather data metrics for 7 days
+            val avgTemp = weatherDataList.map { it.avgTemp }.average()
+            val totalRainfall = weatherDataList.sumOf { it.rainfall }
+            val avgHumidity = weatherDataList.map { it.humidity.toDouble() }.average()
+            val avgWindSpeed = weatherDataList.map { it.windSpeed }.average()
+
+            // Call the disease prediction API using aggregated data
             diseaseDataSource
                 .classifyDisease(
-                    temperature = weatherData.avgTemp,
-                    rainfall = weatherData.rainfall,
-                    humidity = weatherData.humidity.toDouble(),
-                    windSpeed = weatherData.windSpeed
+                    temperature = avgTemp,
+                    rainfall = totalRainfall,
+                    humidity = avgHumidity,
+                    windSpeed = avgWindSpeed
                 )
                 .onSuccess { diseaseName ->
                     predictionUi = DiseasePredictionUi(
@@ -137,12 +146,14 @@ class WeatherListViewModel(
                 .onError { error ->
                     _events.send(WeatherListEvent.Error(error))
                 }
+
             predictionUi
         } catch (e: Exception) {
             Log.d("DiseasePrediction123", "Exception: $e")
             null
         }
     }
+
 
 
     // Gets the current city name using Geocoder and Location Services
@@ -177,9 +188,9 @@ class WeatherListViewModel(
     }
     fun onPredictDisease() {
         viewModelScope.launch {
-            val latestWeather = _state.value.weatherData.firstOrNull()
-            if (latestWeather != null) {
-                classifyDisease(latestWeather.toWeatherData())
+            val weatherDataList = _state.value.weatherData.map { it.toWeatherData() }
+            if (weatherDataList.isNotEmpty()) {
+                classifyDisease(weatherDataList)
             } else {
                 //_events.send(WeatherListEvent.Error(NetworkError.LocationError("No weather data available for prediction.")))
             }
