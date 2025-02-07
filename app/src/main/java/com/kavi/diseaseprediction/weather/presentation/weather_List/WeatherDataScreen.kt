@@ -206,7 +206,7 @@ fun WeatherDataScreen(
                                 horizontalAlignment = Alignment.Start // Center alignment for both lines
                             ) {
                                 Text(
-                                    text = "Smut Disease Risk:",
+                                    text = "False Smut Disease Risk:",
                                     fontSize = 20.sp,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(start = 5.dp,top = 10.dp, bottom =4.dp )
@@ -237,7 +237,7 @@ fun WeatherDataScreen(
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(vertical = 4.dp)
                             ) {
-                                Text(text = "Blast Precautions")
+                                Text(text = "Blast Precautions and Remedies")
                             }
 
                             Button(
@@ -247,7 +247,7 @@ fun WeatherDataScreen(
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(vertical = 4.dp)
                             ) {
-                                Text(text = "Smut Precautions")
+                                Text(text = "Smut Precautions and Remedies")
                             }
                         }
 
@@ -295,7 +295,7 @@ fun WeatherDataScreen(
                             // Title for Smut Disease Images
                             item {
                                 Text(
-                                    text = "Rice Smut Disease Samples",
+                                    text = "False Smut Disease Samples",
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
@@ -333,7 +333,12 @@ fun DiseaseImage(painter: Painter, description: String) {
 
 // Function to categorize risk levels
 private fun categorizeRisk(riskPercentage: String): String {
-    val risk = riskPercentage.toDoubleOrNull() ?: 0.0
+    // Remove the '%' sign and trim spaces
+    val cleanedPercentage = riskPercentage.replace("%", "").trim()
+
+    // Parse the cleaned string to a Double
+    val risk = cleanedPercentage.toDoubleOrNull() ?: return "Invalid Input"
+
     return when {
         risk < 20 -> "Very Low Chance"
         risk < 40 -> "Low Chance"
@@ -342,6 +347,8 @@ private fun categorizeRisk(riskPercentage: String): String {
         else -> "Very High Chance"
     }
 }
+
+
 
 private fun openLink(context: Context, url: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))

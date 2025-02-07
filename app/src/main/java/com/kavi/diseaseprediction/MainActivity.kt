@@ -54,14 +54,6 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = { Text("Plant Doctor") },
-                            actions = {
-                                IconButton(onClick = { /* Handle menu action here */ }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = "More options"
-                                    )
-                                }
-                            },
                             colors = TopAppBarDefaults.topAppBarColors()
                         )
                     }
