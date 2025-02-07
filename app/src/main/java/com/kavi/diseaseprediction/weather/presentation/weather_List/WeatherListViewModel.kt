@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.kavi.diseaseprediction.TFLiteModelInterpreter
 import com.kavi.diseaseprediction.core.domain.util.onError
 import com.kavi.diseaseprediction.core.domain.util.onSuccess
 import com.kavi.diseaseprediction.weather.domain.WeatherData
@@ -120,7 +121,67 @@ class WeatherListViewModel(
 
     // Predicts disease based on the latest weather data
     // Predicts disease based on 7 days of weather data
+
+    private val modelInterpreter1 by lazy { TFLiteModelInterpreter(context, "rice_blast_model.tflite") }
+    private val modelInterpreter2 by lazy { TFLiteModelInterpreter(context, "false_smut_model.tflite") }
+
+    // Predict disease using the local model
     private suspend fun classifyDisease(weatherDataList: List<WeatherData>): DiseasePredictionUi? {
+        return try {
+            // Aggregate the weather data metrics for 7 days
+            val minTemp = weatherDataList.map { it.minTemp }.average()
+            val maxTemp = weatherDataList.map { it.maxTemp }.average()
+            val totalRainfall = weatherDataList.sumOf { it.rainfall }
+            val avgHumidity = weatherDataList.map { it.humidity.toDouble() }.average()
+            val avgWindSpeed = weatherDataList.map { it.windSpeed }.average()
+
+            // Prepare input data
+            val inputData = floatArrayOf(
+                minTemp.toFloat(),
+                maxTemp.toFloat(),  // Use avgTemp for minTemp (example)
+                avgHumidity.toFloat(),
+                totalRainfall.toFloat(),
+                avgWindSpeed.toFloat()
+            )
+
+            // Scale input data
+            val scaledInput = scaleInput(inputData)
+
+            // Get prediction from model
+            val result1 = modelInterpreter1.predict(scaledInput)
+            val result2 = modelInterpreter2.predict(scaledInput)
+            val percentage1 = result1[0] * 100
+            val percentage2 = result2[0] * 100
+
+            // Return disease prediction
+            DiseasePredictionUi(
+                blastDiseaseRisk = "%.2f%%".format(percentage1),
+                smutDiseaseRisk = "%.2f%%".format(percentage2)
+            )
+        } catch (e: Exception) {
+            Log.e("DiseasePrediction", "Error during prediction: $e")
+            null
+        }
+    }
+
+    // Scale input data (same logic as in TFLiteModelInterpreter)
+    private fun scaleInput(inputArray: FloatArray): FloatArray {
+        val maxTempRange = 15f
+        val minTempRange = 10f
+        val humidityRange = 30f
+        val rainfallRange = 200f
+        val windSpeedRange = 25f
+
+        return floatArrayOf(
+            (inputArray[0] - 25) / maxTempRange,  // maxtemp scaled
+            (inputArray[1] - 18) / minTempRange,  // mintemp scaled
+            (inputArray[2] - 65) / humidityRange, // humidity scaled
+            inputArray[3] / rainfallRange,        // rainfall scaled
+            inputArray[4] / windSpeedRange        // windspeed scaled
+        )
+    }
+
+/*private suspend fun classifyDisease(weatherDataList: List<WeatherData>): DiseasePredictionUi? {
         return try {
             var predictionUi: DiseasePredictionUi? = null
 
@@ -133,6 +194,7 @@ class WeatherListViewModel(
             // Call the disease prediction API using aggregated data
             diseaseDataSource
                 .classifyDisease(
+
                     temperature = avgTemp,
                     rainfall = totalRainfall,
                     humidity = avgHumidity,
@@ -154,7 +216,7 @@ class WeatherListViewModel(
         }
     }
 
-
+*/
 
     // Gets the current city name using Geocoder and Location Services
     @SuppressLint("MissingPermission")

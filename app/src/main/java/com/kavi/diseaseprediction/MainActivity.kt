@@ -34,7 +34,6 @@ import com.kavi.diseaseprediction.weather.presentation.weather_List.WeatherListV
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
-
     private val requestLocationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -111,6 +110,8 @@ class MainActivity : ComponentActivity() {
         // State to control dialog visibility
         val showPermissionDialog = remember { mutableStateOf(false) }
         val showLocationDialog = remember { mutableStateOf(false) }
+        val showCameraDialog = remember { mutableStateOf(false) }
+        val showFileAccessDialog = remember { mutableStateOf(false) }
 
         // Ensure the checks are done only once
         val checkedOnce = remember { mutableStateOf(false) }
@@ -126,6 +127,21 @@ class MainActivity : ComponentActivity() {
             }
             if (!isLocationEnabled) {
                 showLocationDialog.value = true // Show location services dialog only once
+            }
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                showCameraDialog.value = true
+            }
+            // Check file access permissions
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                showFileAccessDialog.value = true
             }
         }
 
