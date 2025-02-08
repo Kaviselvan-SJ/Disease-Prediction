@@ -13,8 +13,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,7 +32,6 @@ import com.kavi.diseaseprediction.weather.presentation.weather_List.WeatherListV
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
-
     private val requestLocationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -54,15 +51,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
-                            title = { Text("Plant Doctor") },
-                            actions = {
-                                IconButton(onClick = { /* Handle menu action here */ }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = "More options"
-                                    )
-                                }
-                            },
+                            title = { Text("Blast Predict") },
                             colors = TopAppBarDefaults.topAppBarColors()
                         )
                     }
@@ -111,6 +100,8 @@ class MainActivity : ComponentActivity() {
         // State to control dialog visibility
         val showPermissionDialog = remember { mutableStateOf(false) }
         val showLocationDialog = remember { mutableStateOf(false) }
+        val showCameraDialog = remember { mutableStateOf(false) }
+        val showFileAccessDialog = remember { mutableStateOf(false) }
 
         // Ensure the checks are done only once
         val checkedOnce = remember { mutableStateOf(false) }
@@ -126,6 +117,21 @@ class MainActivity : ComponentActivity() {
             }
             if (!isLocationEnabled) {
                 showLocationDialog.value = true // Show location services dialog only once
+            }
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                showCameraDialog.value = true
+            }
+            // Check file access permissions
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                showFileAccessDialog.value = true
             }
         }
 

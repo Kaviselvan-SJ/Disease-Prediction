@@ -22,7 +22,7 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "BASE_URL", "\"http://api.weatherapi.com/v1/\"")
-            buildConfigField("String", "API_KEY", "\"cf3fbb2be54b4c88864112059241112\"")
+            buildConfigField("String", "API_KEY", "\"e8f5cb254e424c109bb163309252201\"")
             buildConfigField("String", "BASE_URL2", "\"http://192.168.165.240:6657/\"")
         }
         release {
@@ -32,7 +32,7 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "BASE_URL", "\"http://api.weatherapi.com/v1/\"")
-            buildConfigField("String", "API_KEY", "\"cf3fbb2be54b4c88864112059241112\"")
+            buildConfigField("String", "API_KEY", "\"e8f5cb254e424c109bb163309252201\"")
             buildConfigField("String", "BASE_URL2", "\"http://192.168.165.240:6657/\"")
         }
     }
@@ -51,6 +51,9 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
 
     implementation(libs.google.play.services.location)
     implementation(libs.google.play.services.maps)
