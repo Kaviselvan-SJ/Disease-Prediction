@@ -68,6 +68,8 @@ fun WeatherDataScreen(
         currentCity
     }
 
+    var searchedCity by remember { mutableStateOf("") }
+    val displayedCity = searchedCity.ifEmpty { updatedCurrentCity }
 
     LazyColumn(
         modifier = modifier
@@ -150,7 +152,10 @@ fun WeatherDataScreen(
                         .padding(start = 5.dp, bottom = 5.dp, end = 8.dp)
                 )
                 IconButton(
-                    onClick = { onSearch(searchText.text.ifEmpty { "" }) },
+
+                    onClick = {
+                        searchedCity = searchText.text
+                        onSearch(searchText.text.ifEmpty { "" }) },
                     modifier = Modifier.wrapContentWidth()
                 ) {
                     Icon(
@@ -208,6 +213,18 @@ fun WeatherDataScreen(
 
             else -> {
                 item{
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "Result for $displayedCity",
+                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 7.dp)
+                        )
+                    }
+
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
