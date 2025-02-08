@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -47,6 +49,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,249 +68,298 @@ fun WeatherDataScreen(
         currentCity
     }
 
-    Column(
+
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(12.dp), // Ensures proper padding
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Current Location
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.Start // Align to start
-        ) {
-            Text(
-                text = "Current Location: $updatedCurrentCity",
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                modifier = Modifier.padding(start = 7.dp) // Padding from start
-            )
-        }
-
-        // Search Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = searchText,
-                onValueChange = { value -> searchText = value },
-                label = { Text("Search by location") },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 5.dp, bottom = 5.dp, end = 8.dp)
-            )
-            IconButton(
-                onClick = { onSearch(searchText.text.ifEmpty { "" }) },
-                modifier = Modifier.wrapContentWidth()
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    painter = painterResource(id = android.R.drawable.ic_menu_search),
-                    contentDescription = "Perform Search"
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_cit), // Replace with your image
+                        contentDescription = "CIT logo",
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .border(2.dp, Color.Gray, CircleShape)
+                    )
+
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_tnau), // Replace with your image
+                        contentDescription = "TNAU logo",
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .border(2.dp, Color.Gray, CircleShape)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Column for Text Below
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(id = R.string.app_description),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp)) // Space between lines
+
+            }
+        }
+        // Current Location
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = "Current Location: $updatedCurrentCity",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                    modifier = Modifier.padding(start = 7.dp)
                 )
             }
         }
 
+        // Search Bar
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { value -> searchText = value },
+                    label = { Text("Search by location") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 5.dp, bottom = 5.dp, end = 8.dp)
+                )
+                IconButton(
+                    onClick = { onSearch(searchText.text.ifEmpty { "" }) },
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_search),
+                        contentDescription = "Perform Search"
+                    )
+                }
+            }
+        }
+
+
         // Weather Data or Loading/Error State
         when {
             state.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
 
             state.weatherData.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                item{
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = if (searchText.text.isNotEmpty()) {
-                                "No results found for '${searchText.text}'"
-                            } else {
-                                "No data available..."
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Button(
-                            onClick = { onSearch("") },
-                            modifier = Modifier.padding(top = 16.dp)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "Use Current Location")
+                            Text(
+                                text = if (searchText.text.isNotEmpty()) {
+                                    "No results found for '${searchText.text}'"
+                                } else {
+                                    "No data available..."
+                                },
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Button(
+                                onClick = { onSearch("") },
+                                modifier = Modifier.padding(top = 16.dp)
+                            ) {
+                                Text(text = "Use Current Location")
+                            }
                         }
                     }
                 }
             }
 
+
             else -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Disease Prediction UI
-                    state.diseasePrediction?.let { prediction ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp), // Add padding to the entire column
-                        ) {
-                            val blastRisk = categorizeRisk(prediction.blastDiseaseRisk)
-                            val smutRisk = categorizeRisk(prediction.smutDiseaseRisk)
-
-                            // Blast Disease
+                item{
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Disease Prediction UI
+                        state.diseasePrediction?.let { prediction ->
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 7.dp),
-                                horizontalAlignment = Alignment.Start // Center alignment for both lines
+                                    .padding(horizontal = 12.dp), // Add padding to the entire column
                             ) {
-                                Text(
-                                    text = "Blast Disease Risk:",
-                                    fontSize = 20.sp,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(
-                                        start = 5.dp,
-                                        top = 10.dp,
-                                        bottom = 4.dp
+                                val blastRisk = categorizeRisk(prediction.blastDiseaseRisk)
+                                val smutRisk = categorizeRisk(prediction.smutDiseaseRisk)
+
+                                // Blast Disease
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 7.dp),
+                                    horizontalAlignment = Alignment.Start // Center alignment for both lines
+                                ) {
+                                    Text(
+                                        text = "Blast Disease Risk:",
+                                        fontSize = 20.sp,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(
+                                            start = 5.dp,
+                                            top = 10.dp,
+                                            bottom = 4.dp
+                                        )
                                     )
-                                )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 5.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = " $blastRisk (${prediction.blastDiseaseRisk})",
+                                        fontSize = 20.sp,
+                                        modifier = Modifier.padding(start = 30.dp, top = 5.dp)
+                                    )
+                                }
+
+                                // Space between rows
+                                Spacer(modifier = Modifier.height(7.dp))
+
+                                // Smut Disease
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 5.dp),
+                                    horizontalAlignment = Alignment.Start // Center alignment for both lines
+                                ) {
+                                    Text(
+                                        text = "False Smut Disease Risk:",
+                                        fontSize = 20.sp,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(start = 5.dp,top = 10.dp, bottom =4.dp )
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 7.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = " $smutRisk (${prediction.smutDiseaseRisk})",
+                                        fontSize = 20.sp,
+                                        modifier = Modifier.padding(start = 30.dp, top = 5.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(20.dp)) // Space before buttons
+
+                                // Precaution Buttons
+                                val context = LocalContext.current
+
+                                Button(
+                                    onClick = {
+                                        openLink(context, "http://www.agritech.tnau.ac.in/expert_system/paddy/cpdisblast.html")
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    Text(text = "Blast Precautions and Remedies")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        openLink(context, "http://www.agritech.tnau.ac.in/expert_system/paddy/cpdisfalsegraindis.html")
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    Text(text = "Smut Precautions and Remedies")
+                                }
                             }
+
+
+                            val blastDiseases = listOf(
+                                R.drawable.blast_image1 to "Blast Disease Sample 1"
+                            )
+
+                            val smutDiseases = listOf(
+                                R.drawable.smut_image1 to "Smut Disease Sample 1"
+                            )
+
+
                             Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 5.dp),
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(20.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    text = " $blastRisk (${prediction.blastDiseaseRisk})",
-                                    fontSize = 20.sp,
-                                    modifier = Modifier.padding(start = 30.dp, top = 5.dp)
-                                )
-                            }
-
-                            // Space between rows
-                            Spacer(modifier = Modifier.height(7.dp))
-
-                            // Smut Disease
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 5.dp),
-                                horizontalAlignment = Alignment.Start // Center alignment for both lines
-                            ) {
-                                Text(
-                                    text = "False Smut Disease Risk:",
-                                    fontSize = 20.sp,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(start = 5.dp,top = 10.dp, bottom =4.dp )
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 7.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = " $smutRisk (${prediction.smutDiseaseRisk})",
-                                    fontSize = 20.sp,
-                                    modifier = Modifier.padding(start = 30.dp, top = 5.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(20.dp)) // Space before buttons
-
-                            // Precaution Buttons
-                            val context = LocalContext.current
-
-                            Button(
-                                onClick = {
-                                    openLink(context, "http://www.agritech.tnau.ac.in/expert_system/paddy/cpdisblast.html")
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                            ) {
-                                Text(text = "Blast Precautions and Remedies")
-                            }
-
-                            Button(
-                                onClick = {
-                                    openLink(context, "http://www.agritech.tnau.ac.in/expert_system/paddy/cpdisfalsegraindis.html")
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                            ) {
-                                Text(text = "Smut Precautions and Remedies")
-                            }
-                        }
-
-
-                        val blastDiseases = listOf(
-                            R.drawable.blast_image1 to "Blast Disease Sample 1",
-                            R.drawable.blast_image2 to "Blast Disease Sample 2"
-                        )
-
-                        val smutDiseases = listOf(
-                            R.drawable.smut_image1 to "Smut Disease Sample 1",
-                            R.drawable.smut_image2 to "Smut Disease Sample 2"
-                        )
-
-                        // Use LazyColumn for scrollable content
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            // Title for Blast Disease Images
-                            item {
+                                // Title for Blast Disease Images
                                 Text(
                                     text = "Rice Blast Disease Samples",
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
-                            }
 
-                            // Blast Disease Images
-                            items(blastDiseases) { (imageRes, description) ->
-                                DiseaseImage(
-                                    painter = painterResource(id = imageRes),
-                                    description = description
-                                )
-                            }
+                                // Blast Disease Images
+                                blastDiseases.forEach { (imageRes, description) ->
+                                    DiseaseImage(
+                                        painter = painterResource(id = imageRes),
+                                        description = description
+                                    )
+                                }
 
-                            // Spacer between sections
-                            item {
+                                // Spacer between sections
                                 Spacer(modifier = Modifier.height(12.dp))
-                            }
 
-                            // Title for Smut Disease Images
-                            item {
+                                // Title for Smut Disease Images
                                 Text(
                                     text = "False Smut Disease Samples",
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
+
+                                // Smut Disease Images
+                                smutDiseases.forEach { (imageRes, description) ->
+                                    DiseaseImage(
+                                        painter = painterResource(id = imageRes),
+                                        description = description
+                                    )
+                                }
                             }
 
-                            // Smut Disease Images
-                            items(smutDiseases) { (imageRes, description) ->
-                                DiseaseImage(
-                                    painter = painterResource(id = imageRes),
-                                    description = description
-                                )
-                            }
                         }
                     }
                 }
@@ -318,7 +370,6 @@ fun WeatherDataScreen(
 
 @Composable
 fun DiseaseImage(painter: Painter, description: String) {
-
     Image(
         painter = painter,
         contentDescription = description,

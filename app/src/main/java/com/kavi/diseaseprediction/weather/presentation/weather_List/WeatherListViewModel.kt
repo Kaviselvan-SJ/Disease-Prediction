@@ -122,8 +122,8 @@ class WeatherListViewModel(
     // Predicts disease based on the latest weather data
     // Predicts disease based on 7 days of weather data
 
-    private val modelInterpreter1 by lazy { TFLiteModelInterpreter(context, "rice_blast_models.tflite") }
-    private val modelInterpreter2 by lazy { TFLiteModelInterpreter(context, "false_smut_models.tflite") }
+    private val modelInterpreter1 by lazy { TFLiteModelInterpreter(context, "rice_blast_model.tflite") }
+    private val modelInterpreter2 by lazy { TFLiteModelInterpreter(context, "false_smut_model.tflite") }
 
     // Predict disease using the local model
     private suspend fun classifyDisease(weatherDataList: List<WeatherData>): DiseasePredictionUi? {
