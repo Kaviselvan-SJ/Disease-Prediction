@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -67,7 +68,14 @@ fun WeatherDataScreen(
     } else {
         currentCity
     }
+    val threshold = 25
 
+    var showAlertForBlast by remember { mutableStateOf(false) }
+    var showAlertForSmut by remember { mutableStateOf(false) }
+    var alertMessageForBlast by remember { mutableStateOf("") }
+    var alertMessageForSmut by remember { mutableStateOf("") }
+    var searchedCity by remember { mutableStateOf("") }
+    val displayedCity = searchedCity.ifEmpty { updatedCurrentCity }
 
     LazyColumn(
         modifier = modifier
@@ -150,7 +158,10 @@ fun WeatherDataScreen(
                         .padding(start = 5.dp, bottom = 5.dp, end = 8.dp)
                 )
                 IconButton(
-                    onClick = { onSearch(searchText.text.ifEmpty { "" }) },
+
+                    onClick = {
+                        searchedCity = searchText.text
+                        onSearch(searchText.text.ifEmpty { "" }) },
                     modifier = Modifier.wrapContentWidth()
                 ) {
                     Icon(
@@ -208,6 +219,18 @@ fun WeatherDataScreen(
 
             else -> {
                 item{
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "Result for $displayedCity",
+                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 7.dp)
+                        )
+                    }
+
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -221,6 +244,50 @@ fun WeatherDataScreen(
                             ) {
                                 val blastRisk = categorizeRisk(prediction.blastDiseaseRisk)
                                 val smutRisk = categorizeRisk(prediction.smutDiseaseRisk)
+
+
+
+                                // Use LaunchedEffect to trigger alert only once per change
+                                LaunchedEffect(prediction.blastDiseaseRisk, prediction.smutDiseaseRisk) {
+
+                                    if (prediction.blastDiseaseRisk > threshold.toString()) {
+                                        showAlertForBlast = true
+                                        alertMessageForBlast =
+                                            "Warning: Disease Incidence Index (Blast) Exceeds Threshold! Current Index: ${prediction.blastDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                    }
+                                    if (prediction.smutDiseaseRisk > threshold.toString()) {
+                                        showAlertForSmut = true
+                                        alertMessageForSmut =
+                                            "Warning: Disease Incidence Index (False Smut) Exceeds Threshold! Current Index: ${prediction.smutDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                    }
+                                }
+
+                                // Show alert dialog if needed
+                                if (showAlertForBlast) {
+                                    AlertDialog(
+                                        onDismissRequest = { showAlertForBlast = false },
+                                        title = { Text(text = "Alert", fontSize = 20.sp) },
+                                        text = { Text(text = alertMessageForBlast, fontSize = 16.sp) },
+                                        confirmButton = {
+                                            Button(onClick = { showAlertForBlast = false }) {
+                                                Text("OK")
+                                            }
+                                        }
+                                    )
+                                }
+
+                                if (showAlertForSmut) {
+                                    AlertDialog(
+                                        onDismissRequest = { showAlertForSmut = false },
+                                        title = { Text(text = "Alert", fontSize = 20.sp) },
+                                        text = { Text(text = alertMessageForSmut, fontSize = 16.sp) },
+                                        confirmButton = {
+                                            Button(onClick = { showAlertForSmut = false }) {
+                                                Text("OK")
+                                            }
+                                        }
+                                    )
+                                }
 
                                 // Blast Disease
                                 Column(
@@ -341,8 +408,6 @@ fun WeatherDataScreen(
                                     )
                                 }
 
-                                // Spacer between sections
-                                Spacer(modifier = Modifier.height(12.dp))
 
                                 // Title for Smut Disease Images
                                 Text(
