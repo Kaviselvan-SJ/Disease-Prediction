@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -68,6 +69,10 @@ fun WeatherDataScreen(
         currentCity
     }
 
+    var showAlertForBlast by remember { mutableStateOf(false) }
+    var showAlertForSmut by remember { mutableStateOf(false) }
+    var alertMessageForBlast by remember { mutableStateOf("") }
+    var alertMessageForSmut by remember { mutableStateOf("") }
     var searchedCity by remember { mutableStateOf("") }
     val displayedCity = searchedCity.ifEmpty { updatedCurrentCity }
 
@@ -239,6 +244,50 @@ fun WeatherDataScreen(
                                 val blastRisk = categorizeRisk(prediction.blastDiseaseRisk)
                                 val smutRisk = categorizeRisk(prediction.smutDiseaseRisk)
 
+
+
+                                // Use LaunchedEffect to trigger alert only once per change
+                                LaunchedEffect(prediction.blastDiseaseRisk, prediction.smutDiseaseRisk) {
+
+                                    if (prediction.blastDiseaseRisk > 25.toString()) {
+                                        showAlertForBlast = true
+                                        alertMessageForBlast =
+                                            "Warning: Disease Incidence Index (Blast) Exceeds Threshold! Current Index: ${prediction.blastDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                    }
+                                    if (prediction.smutDiseaseRisk > 25.toString()) {
+                                        showAlertForSmut = true
+                                        alertMessageForSmut =
+                                            "Warning: Disease Incidence Index (False Smut) Exceeds Threshold! Current Index: ${prediction.smutDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                    }
+                                }
+
+                                // Show alert dialog if needed
+                                if (showAlertForBlast) {
+                                    AlertDialog(
+                                        onDismissRequest = { showAlertForBlast = false },
+                                        title = { Text(text = "Alert", fontSize = 20.sp) },
+                                        text = { Text(text = alertMessageForBlast, fontSize = 16.sp) },
+                                        confirmButton = {
+                                            Button(onClick = { showAlertForBlast = false }) {
+                                                Text("OK")
+                                            }
+                                        }
+                                    )
+                                }
+
+                                if (showAlertForSmut) {
+                                    AlertDialog(
+                                        onDismissRequest = { showAlertForSmut = false },
+                                        title = { Text(text = "Alert", fontSize = 20.sp) },
+                                        text = { Text(text = alertMessageForSmut, fontSize = 16.sp) },
+                                        confirmButton = {
+                                            Button(onClick = { showAlertForSmut = false }) {
+                                                Text("OK")
+                                            }
+                                        }
+                                    )
+                                }
+
                                 // Blast Disease
                                 Column(
                                     modifier = Modifier
@@ -358,8 +407,6 @@ fun WeatherDataScreen(
                                     )
                                 }
 
-                                // Spacer between sections
-                                Spacer(modifier = Modifier.height(12.dp))
 
                                 // Title for Smut Disease Images
                                 Text(
