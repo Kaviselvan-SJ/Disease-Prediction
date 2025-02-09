@@ -68,6 +68,7 @@ fun WeatherDataScreen(
     } else {
         currentCity
     }
+    val threshold = 25
 
     var showAlertForBlast by remember { mutableStateOf(false) }
     var showAlertForSmut by remember { mutableStateOf(false) }
@@ -249,12 +250,12 @@ fun WeatherDataScreen(
                                 // Use LaunchedEffect to trigger alert only once per change
                                 LaunchedEffect(prediction.blastDiseaseRisk, prediction.smutDiseaseRisk) {
 
-                                    if (prediction.blastDiseaseRisk > 25.toString()) {
+                                    if (prediction.blastDiseaseRisk > threshold.toString()) {
                                         showAlertForBlast = true
                                         alertMessageForBlast =
                                             "Warning: Disease Incidence Index (Blast) Exceeds Threshold! Current Index: ${prediction.blastDiseaseRisk}%. Immediate action is recommended to prevent further spread."
                                     }
-                                    if (prediction.smutDiseaseRisk > 25.toString()) {
+                                    if (prediction.smutDiseaseRisk > threshold.toString()) {
                                         showAlertForSmut = true
                                         alertMessageForSmut =
                                             "Warning: Disease Incidence Index (False Smut) Exceeds Threshold! Current Index: ${prediction.smutDiseaseRisk}%. Immediate action is recommended to prevent further spread."
