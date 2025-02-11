@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class WeatherListViewModel(
@@ -153,10 +154,24 @@ class WeatherListViewModel(
             val percentage1 = result1[0] * 100
             val percentage2 = result2[0] * 100
 
+
+            // Determine date range
+            // Define date formatter for "DD-MM-YYYY"
+            val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+            // Convert dates to "DD-MM-YYYY" format
+            val fromDate = weatherDataList.minByOrNull { it.date }?.date
+                ?.let { LocalDate.parse(it).format(dateFormatter) } ?: "Unknown"
+
+            val toDate = weatherDataList.maxByOrNull { it.date }?.date
+                ?.let { LocalDate.parse(it).format(dateFormatter) } ?: "Unknown"
+
             // Return disease prediction
             DiseasePredictionUi(
                 blastDiseaseRisk = "%.2f%%".format(percentage1),
-                smutDiseaseRisk = "%.2f%%".format(percentage2)
+                smutDiseaseRisk = "%.2f%%".format(percentage2),
+                fromDate = fromDate,
+                toDate = toDate
             )
         } catch (e: Exception) {
             Log.e("DiseasePrediction", "Error during prediction: $e")

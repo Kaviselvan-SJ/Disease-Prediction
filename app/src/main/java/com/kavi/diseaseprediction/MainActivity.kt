@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
-                            title = { Text("Blast Predict") },
+                            title = { Text("Rice Blast/False Smut Predict") },
                             colors = TopAppBarDefaults.topAppBarColors()
                         )
                     }
