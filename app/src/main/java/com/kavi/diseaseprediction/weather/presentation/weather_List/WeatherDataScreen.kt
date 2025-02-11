@@ -41,9 +41,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -68,12 +70,18 @@ fun WeatherDataScreen(
     } else {
         currentCity
     }
-    val threshold = 25
+    val alertMinThreshold = 20
+    val alertMaxThreshold = 25
+    val warningThreshold = 25
 
     var showAlertForBlast by remember { mutableStateOf(false) }
     var showAlertForSmut by remember { mutableStateOf(false) }
+    var showWarningForBlast by remember { mutableStateOf(false) }
+    var showWarningForSmut by remember { mutableStateOf(false) }
     var alertMessageForBlast by remember { mutableStateOf("") }
     var alertMessageForSmut by remember { mutableStateOf("") }
+    var warningMessageForBlast by remember { mutableStateOf("") }
+    var warningMessageForSmut by remember { mutableStateOf("") }
     var searchedCity by remember { mutableStateOf("") }
     val displayedCity = searchedCity.ifEmpty { updatedCurrentCity }
 
@@ -81,7 +89,7 @@ fun WeatherDataScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(12.dp), // Ensures proper padding
+            .padding(top = 5.dp,start = 12.dp,end = 12.dp, bottom = 12.dp), // Ensures proper padding
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
@@ -93,6 +101,8 @@ fun WeatherDataScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+
+                    /*
                     Image(
                         painter = painterResource(id = R.drawable.logo_cit), // Replace with your image
                         contentDescription = "CIT logo",
@@ -101,33 +111,18 @@ fun WeatherDataScreen(
                             .clip(CircleShape)
                             .border(2.dp, Color.Gray, CircleShape)
                     )
-
+                     */
                     Image(
                         painter = painterResource(id = R.drawable.logo_tnau), // Replace with your image
                         contentDescription = "TNAU logo",
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(70.dp)
                             .clip(CircleShape)
                             .border(2.dp, Color.Gray, CircleShape)
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Column for Text Below
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(id = R.string.app_description),
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(8.dp)) // Space between lines
-
-            }
+            Spacer(modifier = Modifier.height(5.dp))
         }
         // Current Location
         item {
@@ -219,24 +214,24 @@ fun WeatherDataScreen(
 
             else -> {
                 item{
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text(
-                            text = "Result for $displayedCity",
-                            fontSize = 20.sp,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 7.dp)
-                        )
-                    }
-
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // Disease Prediction UI
                         state.diseasePrediction?.let { prediction ->
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                Text(
+                                    text = "Result for $displayedCity ( ${prediction.fromDate} to ${prediction.toDate} )",
+                                    fontSize = 17.sp,
+                                    modifier = Modifier.padding(start = 7.dp)
+                                )
+                            }
+
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -250,15 +245,24 @@ fun WeatherDataScreen(
                                 // Use LaunchedEffect to trigger alert only once per change
                                 LaunchedEffect(prediction.blastDiseaseRisk, prediction.smutDiseaseRisk) {
 
-                                    if (prediction.blastDiseaseRisk > threshold.toString()) {
+                                    if (prediction.blastDiseaseRisk > alertMinThreshold.toString() && prediction.blastDiseaseRisk <= alertMaxThreshold.toString()) {
                                         showAlertForBlast = true
                                         alertMessageForBlast =
-                                            "Warning: Disease Incidence Index (Blast) Exceeds Threshold! Current Index: ${prediction.blastDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                            "Alert: Disease Incidence Index (Blast) Exceeds Threshold! Current Index: ${prediction.blastDiseaseRisk}%. Immediate action is recommended to prevent further spread."
                                     }
-                                    if (prediction.smutDiseaseRisk > threshold.toString()) {
+                                    if (prediction.smutDiseaseRisk > alertMinThreshold.toString() && prediction.smutDiseaseRisk <= alertMaxThreshold.toString()) {
                                         showAlertForSmut = true
                                         alertMessageForSmut =
-                                            "Warning: Disease Incidence Index (False Smut) Exceeds Threshold! Current Index: ${prediction.smutDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                            "Alert: Disease Incidence Index (False Smut) Exceeds Threshold! Current Index: ${prediction.smutDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                    }
+
+                                    if(prediction.blastDiseaseRisk > warningThreshold.toString()){
+                                        showWarningForBlast = true
+                                        warningMessageForBlast = "Warning: Immediate action is recommended to prevent further spread of Rice Blast."
+                                    }
+                                    if(prediction.smutDiseaseRisk > warningThreshold.toString()){
+                                        showWarningForSmut = true
+                                        warningMessageForSmut = " Warning: Immediate action is recommended to prevent further spread of False Smut."
                                     }
                                 }
 
@@ -286,6 +290,54 @@ fun WeatherDataScreen(
                                                 Text("OK")
                                             }
                                         }
+                                    )
+                                }
+
+                                if (showWarningForBlast) {
+                                    AlertDialog(
+                                        onDismissRequest = { showWarningForBlast = false },
+                                        title = { Text(text = "Warning", color = Color.Black,fontSize = 20.sp) },
+                                        text = {
+                                            Text(
+                                                text = warningMessageForBlast,
+                                                fontSize = 16.sp,
+                                                color = Color.Black,
+                                                modifier = Modifier.padding(8.dp)
+                                            )
+                                        },
+                                        confirmButton = {
+                                            Button(
+                                                onClick = { showWarningForBlast = false },
+                                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                                            ) {
+                                                Text("OK")
+                                            }
+                                        },
+                                        containerColor = Color(0xFFFFE0E0) // Light Red Background
+                                    )
+                                }
+
+                                if (showWarningForSmut) {
+                                    AlertDialog(
+                                        onDismissRequest = { showWarningForSmut = false },
+                                        title = { Text(text = "Warning", color = Color.Black,fontSize = 20.sp) },
+                                        text = {
+                                            Text(
+                                                text = warningMessageForSmut,
+                                                fontSize = 16.sp,
+                                                color = Color.Black,
+                                                modifier = Modifier.padding(8.dp)
+                                            )
+                                        },
+                                        confirmButton = {
+                                            Button(
+                                                onClick = { showWarningForSmut = false },
+                                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                                            ) {
+                                                Text("OK")
+                                            }
+                                        },
+                                        containerColor = Color(0xFFFFE0E0) // Light Red Background
                                     )
                                 }
 
