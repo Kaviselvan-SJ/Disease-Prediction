@@ -248,21 +248,21 @@ fun WeatherDataScreen(
                                     if (prediction.blastDiseaseRisk > alertMinThreshold.toString() && prediction.blastDiseaseRisk <= alertMaxThreshold.toString()) {
                                         showAlertForBlast = true
                                         alertMessageForBlast =
-                                            "Alert: Disease Incidence Index (Blast) Exceeds Threshold! Current Index: ${prediction.blastDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                            "Alert: Disease Incidence Index (Blast): ${prediction.blastDiseaseRisk}%. Take preventive measures to stop further spread."
                                     }
                                     if (prediction.smutDiseaseRisk > alertMinThreshold.toString() && prediction.smutDiseaseRisk <= alertMaxThreshold.toString()) {
                                         showAlertForSmut = true
                                         alertMessageForSmut =
-                                            "Alert: Disease Incidence Index (False Smut) Exceeds Threshold! Current Index: ${prediction.smutDiseaseRisk}%. Immediate action is recommended to prevent further spread."
+                                            "Alert: Disease Incidence Index (False Smut) : ${prediction.smutDiseaseRisk}%. Take preventive measures to stop further spread."
                                     }
 
                                     if(prediction.blastDiseaseRisk > warningThreshold.toString()){
                                         showWarningForBlast = true
-                                        warningMessageForBlast = "Warning: Immediate action is recommended to prevent further spread of Rice Blast."
+                                        warningMessageForBlast = "Warning: Rice Blast incidence exceeds threshold. Immediate action is recommended to prevent further spread."
                                     }
                                     if(prediction.smutDiseaseRisk > warningThreshold.toString()){
                                         showWarningForSmut = true
-                                        warningMessageForSmut = " Warning: Immediate action is recommended to prevent further spread of False Smut."
+                                        warningMessageForSmut = " Warning: False Smut incidence exceeds threshold. Immediate action is recommended to prevent further spread of False Smut."
                                     }
                                 }
 
