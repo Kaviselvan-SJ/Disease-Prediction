@@ -18,8 +18,19 @@ This mobile application predicts **Blast and False Smut disease** in paddy plant
 - **Machine Learning**: TensorFlow Lite
 - **Architecture**: MVVM
 - **Dependency Injection**: Koin
-- **Data Handling**: Weather API & XLSX file parsing
+- **Data Handling**: Weather API 
 - **Networking**: Ktor (for fetching weather data)
+
+## 📸 Screenshots
+
+### 🌙🌞 Dark & Light Mode
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+|<img src="https://github.com/user-attachments/assets/fa5d1f2e-19eb-4fec-9a33-7db4d6fbf42a" height="500" width="240"/>|<img src="https://github.com/user-attachments/assets/1c00dcb7-e8ef-41bb-9b6b-46e6741310dc" height="500" width="240"/>|
+|<img src="https://github.com/user-attachments/assets/5d6806d0-647c-4de7-b738-6fac8363518e"  height="500" width="240"/>|<img src="https://github.com/user-attachments/assets/61319c07-d6bd-4e97-8b67-72d8a0c521b9" height="500" width="240"/>|
+|<img src="https://github.com/user-attachments/assets/7ca179a9-29cb-47d4-b0da-e7670280040b" height="500" width="240"/>|<img src="https://github.com/user-attachments/assets/b6b66898-34ab-4655-b596-efae353616a1" height="500" width="240"/>|
+
 
 ## 🔧 Setup Instructions
 1. Clone the repository:
