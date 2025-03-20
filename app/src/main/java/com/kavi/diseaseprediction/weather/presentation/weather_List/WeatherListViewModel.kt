@@ -115,7 +115,7 @@ class WeatherListViewModel(
 
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false) }
-               // _events.send(WeatherListEvent.Error(NetworkError.UnknownError(e.message)))
+                // _events.send(WeatherListEvent.Error(NetworkError.UnknownError(e.message)))
             }
         }
     }
@@ -196,42 +196,42 @@ class WeatherListViewModel(
         )
     }
 
-/*private suspend fun classifyDisease(weatherDataList: List<WeatherData>): DiseasePredictionUi? {
-        return try {
-            var predictionUi: DiseasePredictionUi? = null
+    /*private suspend fun classifyDisease(weatherDataList: List<WeatherData>): DiseasePredictionUi? {
+            return try {
+                var predictionUi: DiseasePredictionUi? = null
 
-            // Aggregate the weather data metrics for 7 days
-            val avgTemp = weatherDataList.map { it.avgTemp }.average()
-            val totalRainfall = weatherDataList.sumOf { it.rainfall }
-            val avgHumidity = weatherDataList.map { it.humidity.toDouble() }.average()
-            val avgWindSpeed = weatherDataList.map { it.windSpeed }.average()
+                // Aggregate the weather data metrics for 7 days
+                val avgTemp = weatherDataList.map { it.avgTemp }.average()
+                val totalRainfall = weatherDataList.sumOf { it.rainfall }
+                val avgHumidity = weatherDataList.map { it.humidity.toDouble() }.average()
+                val avgWindSpeed = weatherDataList.map { it.windSpeed }.average()
 
-            // Call the disease prediction API using aggregated data
-            diseaseDataSource
-                .classifyDisease(
+                // Call the disease prediction API using aggregated data
+                diseaseDataSource
+                    .classifyDisease(
 
-                    temperature = avgTemp,
-                    rainfall = totalRainfall,
-                    humidity = avgHumidity,
-                    windSpeed = avgWindSpeed
-                )
-                .onSuccess { diseaseName ->
-                    predictionUi = DiseasePredictionUi(
-                        diseaseName = diseaseName
+                        temperature = avgTemp,
+                        rainfall = totalRainfall,
+                        humidity = avgHumidity,
+                        windSpeed = avgWindSpeed
                     )
-                }
-                .onError { error ->
-                    _events.send(WeatherListEvent.Error(error))
-                }
+                    .onSuccess { diseaseName ->
+                        predictionUi = DiseasePredictionUi(
+                            diseaseName = diseaseName
+                        )
+                    }
+                    .onError { error ->
+                        _events.send(WeatherListEvent.Error(error))
+                    }
 
-            predictionUi
-        } catch (e: Exception) {
-            Log.d("DiseasePrediction123", "Exception: $e")
-            null
+                predictionUi
+            } catch (e: Exception) {
+                Log.d("DiseasePrediction123", "Exception: $e")
+                null
+            }
         }
-    }
 
-*/
+    */
 
     // Gets the current city name using Geocoder and Location Services
     @SuppressLint("MissingPermission")
