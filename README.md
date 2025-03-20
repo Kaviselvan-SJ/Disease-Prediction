@@ -2,7 +2,7 @@ README.md
 
 # Paddy Disease Prediction App
 
-This mobile application predicts **Blast and False Smut disease** in paddy plants using a **TensorFlow Lite (TFLite) model** converted from an ANN model originally built in R. The app supports **both light and dark themes** and follows the **MVVM architecture** with **Koin for dependency injection**.
+This mobile application predicts **Blast and False Smut disease** in paddy plants using a **TensorFlow Lite (TFLite) model** converted from an ANN model originally built in R. The app utilizes **past 1-week weather data** to make accurate predictions. It supports **both light and dark themes** and follows the **MVVM architecture** with **Koin for dependency injection**.
 
 ## 🚀 Features
 - 📌 **Predicts Blast & False Smut disease in paddy crops**
