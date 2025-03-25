@@ -7,7 +7,7 @@ This mobile application predicts **Blast and False Smut disease** in paddy plant
 ## 🚀 Features
 - 📌 **Predicts Blast & False Smut disease in paddy crops**
 - 🧠 **Integrated TensorFlow Lite model** for on-device predictions (No API calls required)
-- 🌤️ Fetches **weather data** from an API & XLSX sheets for predictions
+- 🌤️ Fetches **weather data** from an API for predictions
 - 🏗️ **MVVM Architecture** for clean and maintainable code
 - ⚙️ **Koin for Dependency Injection**
 - 🌙🎨 Supports **both Light and Dark themes**
